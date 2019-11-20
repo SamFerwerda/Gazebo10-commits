@@ -1,0 +1,5 @@
+/.git/
+/.hgignore
+/.hgreview
+/build/
+/cmake-build-*/

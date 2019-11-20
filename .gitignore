@@ -1,0 +1,12 @@
+/test/plugins/rest-web/node_modules
+/build/
+/cmake-build-*/
+/build_*/
+/build-*/
+.idea/
+Ogre.log
+.DS_Store
+*.swp
+*.orig
+*.gch
+*.pch
