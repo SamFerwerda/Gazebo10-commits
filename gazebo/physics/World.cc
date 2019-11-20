@@ -129,6 +129,8 @@ World::World(const std::string &_name)
   this->dataPtr->logPlayStateSDF.reset(new sdf::Element);
   sdf::initFile("state.sdf", this->dataPtr->logPlayStateSDF);
 
+  this->dataPtr->elementResetMutex = new boost::recursive_mutex();
+
   this->dataPtr->initialized = false;
   this->dataPtr->loaded = false;
   this->dataPtr->stepInc = 0;
@@ -3000,6 +3002,12 @@ std::mutex &World::WorldPoseMutex() const
 {
   return this->dataPtr->setWorldPoseMutex;
 }
+
+boost::recursive_mutex *World::GetElementResetMutex() const
+{
+  return this->dataPtr->elementResetMutex;
+}
+
 
 /////////////////////////////////////////////////
 bool World::PhysicsEnabled() const

@@ -48,16 +48,29 @@ Base::Base(BasePtr _parent)
   this->sdf->AddAttribute("name", "string", "__default__", true);
   this->name = "__default__";
 
-  if (this->parent)
+  if (_parent)
   {
-    this->world = this->parent->GetWorld();
+    this->world = _parent->GetWorld();
   }
 }
 
 //////////////////////////////////////////////////
 Base::~Base()
 {
-  this->Fini();
+  this->SetParent(BasePtr());
+
+  for (Base_V::iterator iter = this->children.begin();
+       iter != this->children.end(); ++iter)
+  {
+    if (*iter)
+      (*iter)->SetParent(BasePtr());
+  }
+  this->children.clear();
+  if (this->sdf && this->GetWorld()) {
+    boost::recursive_mutex::scoped_lock lock(*this->GetWorld()->GetElementResetMutex());
+    this->sdf->Reset();
+  }
+  this->sdf.reset();
 }
 
 //////////////////////////////////////////////////
@@ -72,11 +85,12 @@ void Base::Load(sdf::ElementPtr _sdf)
     this->name = this->sdf->Get<std::string>("name");
   else
     this->name.clear();
-
-  if (this->parent)
+  
+  auto parent_ = this->parent.lock();
+  if (parent_)
   {
-    this->world = this->parent->GetWorld();
-    this->parent->AddChild(shared_from_this());
+    this->world = parent_->GetWorld();
+    parent_->AddChild(shared_from_this());
   }
 
   this->ComputeScopedName();
@@ -174,19 +188,20 @@ bool Base::GetSaveable() const
 //////////////////////////////////////////////////
 int Base::GetParentId() const
 {
-  return this->parent == NULL ? 0 : this->parent->GetId();
+  auto parent_ = this->parent.lock();
+  return parent_ ? 0 : parent_->GetId();
 }
 
 //////////////////////////////////////////////////
 void Base::SetParent(BasePtr _parent)
 {
-  this->parent = _parent;
+  this->parent = BaseWeakPtr(_parent);
 }
 
 //////////////////////////////////////////////////
 BasePtr Base::GetParent() const
 {
-  return this->parent;
+  return this->parent.lock();
 }
 
 //////////////////////////////////////////////////
@@ -370,7 +385,7 @@ void Base::UnregisterIntrospectionItems()
 //////////////////////////////////////////////////
 void Base::ComputeScopedName()
 {
-  BasePtr p = this->parent;
+  auto p = this->parent.lock();
   this->scopedName = this->GetName();
 
   while (p)

@@ -353,13 +353,10 @@ void SimbodyJoint::SaveSimbodyState(const SimTK::State &/*_state*/)
   {
     if (this->simbodyQ.empty())
       this->simbodyQ.resize(this->masterMobod.getNumQ(_state));
-
     if (this->simbodyU.empty())
       this->simbodyU.resize(this->masterMobod.getNumU(_state));
-
     for (unsigned int i = 0; i < this->simbodyQ.size(); ++i)
       this->simbodyQ[i] = this->masterMobod.getOneQ(_state, i);
-
     for (unsigned int i = 0; i < this->simbodyU.size(); ++i)
       this->simbodyU[i] = this->masterMobod.getOneU(_state, i);
   }

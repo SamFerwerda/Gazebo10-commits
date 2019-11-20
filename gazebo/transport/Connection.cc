@@ -302,12 +302,12 @@ void Connection::EnqueueMsg(const std::string &_buffer,
     return;
   }
 
-  char headerBuffer[HEADER_LENGTH + 1];
-  snprintf(headerBuffer, HEADER_LENGTH + 1, "%08x",
-      static_cast<unsigned int>(_buffer.size()));
-
   {
-    boost::recursive_mutex::scoped_lock lock(this->writeMutex);
+  	boost::recursive_mutex::scoped_lock lock(this->writeMutex);
+	
+  	char headerBuffer[HEADER_LENGTH + 1];
+  	snprintf(headerBuffer, HEADER_LENGTH + 1, "%08x",
+      		static_cast<unsigned int>(_buffer.size()));
 
     if (this->writeQueue.empty() ||
         (this->writeCount > 0 && this->writeQueue.size() == 1) ||

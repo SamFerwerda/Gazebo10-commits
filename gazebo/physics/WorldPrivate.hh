@@ -190,6 +190,10 @@ namespace gazebo
       /// World::SetPaused to assign world::pause
       public: std::recursive_mutex worldUpdateMutex;
 
+      /// \brief Used by `Base` to prevent multiple threads from
+      /// resetting (potentially the same) elements at the same time.
+      public: boost::recursive_mutex *elementResetMutex;
+
       /// \brief The world's current SDF description.
       public: sdf::ElementPtr sdf;
 

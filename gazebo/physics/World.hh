@@ -19,7 +19,7 @@
 
 #ifdef _WIN32
   // Ensure that Winsock2.h is included before Windows.h, which can get
-  // pulled in by anybody (e.g., Boost).
+  // pulled in by anybody (e.g.,).
   #include <Winsock2.h>
 #endif
 
@@ -280,6 +280,10 @@ namespace gazebo
       /// \return A pointer to nearest Model, NULL if none is found.
       public: ModelPtr ModelBelowPoint(
                   const ignition::math::Vector3d &_pt) const;
+      
+      /// \brief Get the element reset mutex
+      /// \return Element reset mutex
+      public: boost::recursive_mutex *GetElementResetMutex() const;
 
       /// \brief Get the nearest entity below a point.
       /// Projects a Ray down (-Z axis) starting at the given point. The

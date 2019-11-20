@@ -68,11 +68,14 @@ Entity::Entity(BasePtr _parent)
     this->visualMsg->set_parent_name("no_world_name");
   }
 
-  if (this->parent && this->parent->HasType(ENTITY))
+  auto parent_ = this->parent.lock();
+  if (parent_ && parent_->HasType(ENTITY))
   {
-    this->parentEntity = boost::dynamic_pointer_cast<Entity>(this->parent);
-    this->visualMsg->set_parent_name(this->parentEntity->GetScopedName());
-    this->SetStatic(this->parentEntity->IsStatic());
+    auto parentEntity_ = boost::dynamic_pointer_cast<Entity>(parent_);
+    this->parentEntity = EntityWeakPtr(parentEntity_);
+
+    this->visualMsg->set_parent_name(parentEntity_->GetScopedName());
+    this->SetStatic(parentEntity_->IsStatic());
   }
 
   this->setWorldPoseFunc = &Entity::SetWorldPoseDefault;
@@ -100,10 +103,11 @@ void Entity::Load(sdf::ElementPtr _sdf)
   this->visualMsg->set_name(this->GetScopedName());
 
   {
-    if (this->parent && this->parentEntity)
+    auto parentEntity_ = this->parentEntity.lock();
+    if (parentEntity_)
     {
       this->worldPose = this->sdf->Get<ignition::math::Pose3d>("pose") +
-                        this->parentEntity->worldPose;
+                        parentEntity_->worldPose;
     }
     else
     {
@@ -113,10 +117,11 @@ void Entity::Load(sdf::ElementPtr _sdf)
     this->initialRelativePose = this->sdf->Get<ignition::math::Pose3d>("pose");
   }
 
-  if (this->parent)
+  auto parent_ = this->parent.lock();
+  if (parent_)
   {
-    this->visualMsg->set_parent_name(this->parent->GetScopedName());
-    this->visualMsg->set_parent_id(this->parent->GetId());
+    this->visualMsg->set_parent_name(parent_->GetScopedName());
+    this->visualMsg->set_parent_id(parent_->GetId());
   }
   else
   {
@@ -250,13 +255,17 @@ ignition::math::Pose3d Entity::RelativePose() const
   {
     return this->initialRelativePose;
   }
-  else if (this->parent && this->parentEntity)
-  {
-    return this->WorldPose() - this->parentEntity->WorldPose();
-  }
   else
   {
-    return this->WorldPose();
+    auto parentEntity_ = this->parentEntity.lock();
+    if (parentEntity_)
+    {
+      return this->worldPose - parentEntity_->GetWorldPose();
+    }
+    else
+    {
+      return this->worldPose;
+    }
   }
 }
 
@@ -264,8 +273,9 @@ ignition::math::Pose3d Entity::RelativePose() const
 void Entity::SetRelativePose(const ignition::math::Pose3d &_pose,
     const bool _notify, const bool _publish)
 {
-  if (this->parent && this->parentEntity)
-    this->SetWorldPose(_pose + this->parentEntity->WorldPose(), _notify,
+  auto parentEntity_ = this->parentEntity.lock();
+  if (parentEntity_)
+    this->SetWorldPose(_pose + parentEntity_->GetWorldPose(), _notify,
                               _publish);
   else
     this->SetWorldPose(_pose, _notify, _publish);
@@ -397,29 +407,29 @@ void Entity::SetWorldPoseCanonicalLink(
     return;
   }
 
-  EntityPtr parentEnt = this->parentEntity;
+  auto parentEnt_ = this->parentEntity.lock();
   ignition::math::Pose3d relativePose = this->initialRelativePose;
   ignition::math::Pose3d updatePose = _pose;
 
   // recursively update parent model pose based on new canonical link pose
-  while (parentEnt && parentEnt->HasType(MODEL))
+  while (parentEnt_ && parentEnt_->HasType(MODEL))
   {
     // setting parent Model world pose from canonical link world pose
     // where _pose is the canonical link's world pose
-    parentEnt->worldPose = ignition::math::Pose3d(-relativePose) + updatePose;
+    parentEnt_->worldPose = ignition::math::Pose3d(-relativePose) + updatePose;
 
-    parentEnt->worldPose.Correct();
+    parentEnt_->worldPose.Correct();
 
     if (_notify)
-      parentEnt->UpdatePhysicsPose(false);
+      parentEnt_->UpdatePhysicsPose(false);
 
     if (_publish)
-      this->parentEntity->PublishPose();
+      parentEnt_->PublishPose();
 
-    updatePose = parentEnt->worldPose;
-    relativePose = parentEnt->InitialRelativePose();
+    updatePose = parentEnt_->worldPose;
+    relativePose = parentEnt_->InitialRelativePose();
 
-    parentEnt = boost::dynamic_pointer_cast<Entity>(parentEnt->GetParent());
+    parentEnt_ = boost::dynamic_pointer_cast<Entity>(parentEnt_->GetParent());
   }
 }
 
@@ -549,7 +559,7 @@ ModelPtr Entity::GetParentModel()
   if (this->HasType(MODEL))
     return boost::dynamic_pointer_cast<Model>(shared_from_this());
 
-  p = this->parent;
+  p = this->parent.lock();
   GZ_ASSERT(p, "Parent of an entity is NULL");
 
   while (p->GetParent() && p->GetParent()->HasType(MODEL))
@@ -621,8 +631,6 @@ void Entity::Fini()
     delete this->visualMsg;
   this->visualMsg = NULL;
 
-  this->parentEntity.reset();
-
   Base::Fini();
 }
 
@@ -638,8 +646,10 @@ void Entity::UpdateParameters(sdf::ElementPtr _sdf)
   Base::UpdateParameters(_sdf);
 
   ignition::math::Pose3d parentPose;
-  if (this->parent && this->parentEntity)
-    parentPose = this->parentEntity->worldPose;
+  
+  auto parentEntity_ = this->parentEntity.lock();
+  if (parentEntity_)
+    parentPose = parentEntity_->worldPose;
 
   ignition::math::Pose3d newPose = _sdf->Get<ignition::math::Pose3d>("pose");
   if (newPose != this->RelativePose())

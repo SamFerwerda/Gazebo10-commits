@@ -135,6 +135,10 @@ namespace gazebo
 
       /// \brief Callback for contact messages from the physics engine.
       private: void OnContacts(ConstContactsPtr &_msg);
+      
+      /// \brief Name of the collision filter
+      private: std::string filterName;
+
 
       /// \internal
       /// \brief Private data pointer
