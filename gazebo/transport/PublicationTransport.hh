@@ -44,7 +44,8 @@ namespace gazebo
       /// \param[in] _topic Topic that we're publishing
       /// \param[in] _topic Type of the topic that we're publishing
       public: PublicationTransport(const std::string &_topic,
-                                   const std::string &_msgType);
+                                   const std::string &_msgType,
+                                   const std::string &_remoteURI);
 
       /// \brief Destructor
       public: virtual ~PublicationTransport();
@@ -75,6 +76,10 @@ namespace gazebo
       /// \return The topic type
       public: std::string GetMsgType() const;
 
+      /// \brief Get the remote address for which this transport was created
+      /// \return The remote address
+      public: std::string GetRemoteAddress() const;
+
       /// \brief Called when data is published.
       /// \param[in] _data Data to be published.
       private: void OnPublish(const std::string &_data);
@@ -84,7 +89,10 @@ namespace gazebo
 
       /// \brief The type of messages that can be processed.
       private: std::string msgType;
-
+	
+      /// \brief The remote URI on which this transport was created
+      private: std::string remoteAddress;
+     
       /// \brief The connection for the publication transport
       private: ConnectionPtr connection;
 
