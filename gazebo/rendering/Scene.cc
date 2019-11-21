@@ -2456,7 +2456,7 @@ void Scene::ProcessRequestMsg(ConstRequestPtr &_msg)
     }
     // Otherwise delete a visual
     else
-    {
+    { 
       VisualPtr visPtr;
       try
       {
@@ -2468,8 +2468,11 @@ void Scene::ProcessRequestMsg(ConstRequestPtr &_msg)
           visPtr = this->GetVisual(_msg->data());
       } catch(...)
       {
-        visPtr = this->GetVisual(_msg->data());
+        // casting error, not numeric
       }
+      if (!visPtr)
+      	// Not located by ID, find by name
+        visPtr = this->GetVisual(_msg->data());
 
       if (visPtr)
         this->RemoveVisual(visPtr);
