@@ -41,9 +41,9 @@ using namespace physics;
 JointController::JointController(ModelPtr _model)
   : dataPtr(new JointControllerPrivate)
 {
-  this->dataPtr->model = _model;
+  this->dataPtr->model = ModelWeakPtr(_model);
 
-  std::string modelName = this->dataPtr->model->GetScopedName();
+  std::string modelName = _model->GetScopedName();
   if (modelName.empty())
   {
     modelName = this->dataPtr->model->GetName();
@@ -120,7 +120,7 @@ void JointController::Reset()
 /////////////////////////////////////////////////
 void JointController::Update()
 {
-  common::Time currTime = this->dataPtr->model->GetWorld()->SimTime();
+  common::Time currTime = this->dataPtr->model.lock()->GetWorld()->SimTime();
   common::Time stepTime = currTime - this->dataPtr->prevUpdateTime;
   this->dataPtr->prevUpdateTime = currTime;
 

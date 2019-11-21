@@ -634,7 +634,7 @@ namespace gazebo
       protected: LinkPtr parentLink;
 
       /// \brief Pointer to the parent model.
-      protected: ModelPtr model;
+      protected: ModelWeakPtr model;
 
       /// \brief Anchor pose.  This is the xyz position of the joint frame
       /// specified in the world frame.

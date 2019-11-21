@@ -33,7 +33,7 @@ namespace gazebo
     class JointControllerPrivate
     {
       /// \brief Model to control.
-      public: ModelPtr model;
+      public: ModelWeakPtr model;
 
       /// \brief List of links that have been updated.
       public: Link_V updatedLinks;
