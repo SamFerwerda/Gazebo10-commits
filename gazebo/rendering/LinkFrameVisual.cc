@@ -63,7 +63,7 @@ void LinkFrameVisual::RecalculateScale()
       reinterpret_cast<LinkFrameVisualPrivate *>(this->dataPtr);
 
   double linkSize = std::max(0.1,
-      dPtr->parent->BoundingBox().Size().Length());
+      dPtr->parent.lock()->BoundingBox().Size().Length());
   linkSize = std::min(linkSize, 1.0);
   dPtr->scaleToLink = ignition::math::Vector3d(linkSize * 0.7,
                                                linkSize * 0.7,
