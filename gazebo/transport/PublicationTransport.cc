@@ -35,9 +35,8 @@ int PublicationTransport::counter = 0;
 
 /////////////////////////////////////////////////
 PublicationTransport::PublicationTransport(const std::string &_topic,
-                                           const std::string &_msgType,
-                                           const std::string &_remoteAddress)
-: topic(_topic), msgType(_msgType), remoteAddress(_remoteAddress)
+                                           const std::string &_msgType)
+: topic(_topic), msgType(_msgType)
 {
   this->id = counter++;
   TopicManager::Instance()->UpdatePublications(this->topic, this->msgType);
@@ -123,13 +122,6 @@ std::string PublicationTransport::GetMsgType() const
 {
   return this->msgType;
 }
-
-/////////////////////////////////////////////////
-std::string PublicationTransport::GetRemoteAddress() const
-{
-  return this->remoteAddress;
-}
-
 
 /////////////////////////////////////////////////
 void PublicationTransport::Fini()
