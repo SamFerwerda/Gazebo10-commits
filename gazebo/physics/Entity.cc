@@ -260,7 +260,7 @@ ignition::math::Pose3d Entity::RelativePose() const
     auto parentEntity_ = this->parentEntity.lock();
     if (parentEntity_)
     {
-      return this->worldPose - parentEntity_->GetWorldPose();
+      return this->worldPose - parentEntity_->WorldPose();
     }
     else
     {
@@ -275,7 +275,7 @@ void Entity::SetRelativePose(const ignition::math::Pose3d &_pose,
 {
   auto parentEntity_ = this->parentEntity.lock();
   if (parentEntity_)
-    this->SetWorldPose(_pose + parentEntity_->GetWorldPose(), _notify,
+    this->SetWorldPose(_pose + parentEntity_->WorldPose(), _notify,
                               _publish);
   else
     this->SetWorldPose(_pose, _notify, _publish);
@@ -399,10 +399,10 @@ void Entity::SetWorldPoseCanonicalLink(
 {
   this->SetWorldPoseDefault(_pose, _notify, _publish);
 
-  if (!this->parentEntity->HasType(MODEL))
+  if (!this->parentEntity.lock()->HasType(MODEL))
   {
     gzerr << "SetWorldPose for Canonical Body [" << this->GetName()
-        << "] but parent[" << this->parentEntity->GetName()
+        << "] but parent[" << this->parentEntity.lock()->GetName()
         << "] is not a MODEL!" << std::endl;
     return;
   }
@@ -646,7 +646,7 @@ void Entity::UpdateParameters(sdf::ElementPtr _sdf)
   Base::UpdateParameters(_sdf);
 
   ignition::math::Pose3d parentPose;
-  
+
   auto parentEntity_ = this->parentEntity.lock();
   if (parentEntity_)
     parentPose = parentEntity_->worldPose;

@@ -85,7 +85,7 @@ void Base::Load(sdf::ElementPtr _sdf)
     this->name = this->sdf->Get<std::string>("name");
   else
     this->name.clear();
-  
+
   auto parent_ = this->parent.lock();
   if (parent_)
   {
@@ -112,9 +112,8 @@ void Base::Fini()
   this->UnregisterIntrospectionItems();
 
   // Remove self as a child of the parent
-  if (this->parent)
+  if (auto temp = this->parent.lock())
   {
-    auto temp = this->parent;
     this->parent.reset();
 
     temp->RemoveChild(this->id);
@@ -347,7 +346,7 @@ common::URI Base::URI() const
 
   uri.SetScheme("data");
 
-  BasePtr p = this->parent;
+  BasePtr p = this->parent.lock();
   while (p)
   {
     if (p->GetParent())
@@ -396,7 +395,7 @@ void Base::ComputeScopedName()
   }
 
   if (this->world) {
-     this->worldScopedName = this->world->GetName() + "::" + this->scopedName;
+     this->worldScopedName = this->world->Name() + "::" + this->scopedName;
   }
 }
 

@@ -230,7 +230,7 @@ void Joint::Load(sdf::ElementPtr _sdf)
   // First try to find the link with different scopes.
   if (!this->parentLink && parentName != std::string("world"))
   {
-    BasePtr parentModel = this->model;
+    BasePtr parentModel = this->model.lock();
     while (!this->parentLink && parentModel && parentModel->HasType(MODEL))
     {
       std::string scopedParentName =
@@ -264,7 +264,7 @@ void Joint::Load(sdf::ElementPtr _sdf)
 
   if (!this->childLink && childName != std::string("world"))
   {
-    BasePtr parentModel = this->model;
+    BasePtr parentModel = this->model.lock();
 
     while (!this->childLink && parentModel && parentModel->HasType(MODEL))
     {
@@ -1499,4 +1499,3 @@ void Joint::RegisterIntrospectionVelocity(const unsigned int _index)
   gazebo::util::IntrospectionManager::Instance()->Register
       <double>(uri.Str(), f);
 }
-

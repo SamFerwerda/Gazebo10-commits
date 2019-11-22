@@ -64,8 +64,8 @@ void BulletCollision::Load(sdf::ElementPtr _sdf)
 //////////////////////////////////////////////////
 void BulletCollision::OnPoseChange()
 {
-  math::Pose pose = this->GetRelativePose();
-  
+  auto pose = this->RelativePose();
+
   auto p = this->parent.lock();
   if (p)
     BulletLinkPtr bbody = boost::dynamic_pointer_cast<BulletLink>(p);
@@ -95,7 +95,7 @@ void BulletCollision::SetCollideBits(unsigned int _bits)
     }
   }
 
-  BulletLink *bulletLink = dynamic_cast<BulletLink *>(&*this->parent);
+  BulletLink *bulletLink = dynamic_cast<BulletLink *>(&*this->parent.lock());
 
   // Set mask and group because BulletRayShape still uses them, TODO remove
   btRigidBody *bod = bulletLink->GetBulletLink();

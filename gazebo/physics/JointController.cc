@@ -46,7 +46,7 @@ JointController::JointController(ModelPtr _model)
   std::string modelName = _model->GetScopedName();
   if (modelName.empty())
   {
-    modelName = this->dataPtr->model->GetName();
+    modelName = this->dataPtr->model.lock()->GetName();
   }
   boost::replace_all(modelName, "::", "/");
 

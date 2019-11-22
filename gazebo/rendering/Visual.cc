@@ -208,7 +208,7 @@ void Visual::Fini()
   // Detach from the parent
   auto parent = this->dataPtr->parent.lock();
   if (parent)
-    parent->DetachVisual(this->GetName());
+    parent->DetachVisual(this->Name());
   this->dataPtr->parent.reset();
 
   if (this->dataPtr->boundingBox)

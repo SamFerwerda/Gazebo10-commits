@@ -87,14 +87,14 @@ void BulletMotionState::setWorldTransform(const btTransform &/*_cogWorldTrans*/)
   auto parentJoints = this->link->GetParentJoints();
   for (unsigned int j = 0; j < parentJoints.size(); ++j)
   {
-    JointPtr joint = parentJoints[j].lock();
+    JointPtr joint = parentJoints[j];
     joint->CacheForceTorque();
   }
-  
+
   auto childJoints = this->link->GetChildJoints();
   for (unsigned int j = 0; j < childJoints.size(); ++j)
   {
-    JointPtr joint = childJoints[j].lock();
+    JointPtr joint = childJoints[j];
     joint->CacheForceTorque();
   }
 }

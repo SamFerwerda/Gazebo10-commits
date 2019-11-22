@@ -371,7 +371,7 @@ void Link::Fini()
       auto parent_ = this->parent.lock();
       if (parent_)
       {
-        msg.set_parent_name(parent_>GetScopedName());
+        msg.set_parent_name(parent_->GetScopedName());
         msg.set_parent_id(parent_->GetId());
       }
       else
@@ -633,13 +633,13 @@ void Link::UpdateWind(const common::UpdateInfo & /*_info*/)
 }
 
 /////////////////////////////////////////////////
-std::vector<JointWeakPtr> Link::GetParentJoints() const
+std::vector<JointPtr> Link::GetParentJoints() const
 {
   return this->dataPtr->parentJoints;
 }
 
 /////////////////////////////////////////////////
-std::vector<JointWeakPtr> Link::GetChildJoints() const
+std::vector<JointPtr> Link::GetChildJoints() const
 {
   return this->dataPtr->childJoints;
 }
@@ -648,11 +648,11 @@ std::vector<JointWeakPtr> Link::GetChildJoints() const
 Link_V Link::GetChildJointsLinks() const
 {
   Link_V links;
-  for (std::vector<JointWeakPtr>::const_iterator iter =
-      this->dataPtr->childJoints.begin();
-      iter != this->dataPtr->childJoints.end(); ++iter)
+  for (auto iter =
+      this->dataPtr->childJoints.cbegin();
+      iter != this->dataPtr->childJoints.cend(); ++iter)
   {
-    auto childJoint_ = (*iter).lock();
+    auto childJoint_ = (*iter);
     if (childJoint_ && childJoint_->GetChild())
       links.push_back(childJoint_->GetChild());
   }
@@ -663,11 +663,11 @@ Link_V Link::GetChildJointsLinks() const
 Link_V Link::GetParentJointsLinks() const
 {
   Link_V links;
-  for (std::vector<JointWeakPtr>::const_iterator iter =
-      this->dataPtr->parentJoints.begin();
-      iter != this->dataPtr->parentJoints.end(); ++iter)
+  for (auto iter =
+      this->dataPtr->parentJoints.cbegin();
+      iter != this->dataPtr->parentJoints.cend(); ++iter)
   {
-    auto parentJoint_ = (*iter).lock();
+    auto parentJoint_ = (*iter);
     if (parentJoint_ && parentJoint_->GetChild())
       links.push_back(parentJoint_->GetParent());
   }
@@ -914,24 +914,24 @@ ignition::math::Matrix3d Link::WorldInertiaMatrix() const
 //////////////////////////////////////////////////
 void Link::AddParentJoint(JointPtr _joint)
 {
-  this->dataPtr->parentJoints.push_back(JointWeakPtr_joint);
+  this->dataPtr->parentJoints.push_back(_joint);
 }
 
 //////////////////////////////////////////////////
 void Link::AddChildJoint(JointPtr _joint)
 {
-  this->dataPtr->childJoints.push_back(JointWeakPtr_joint);
+  this->dataPtr->childJoints.push_back(_joint);
 }
 
 //////////////////////////////////////////////////
 void Link::RemoveParentJoint(const std::string &_jointName)
 {
-    for (auto iter = this->parentJoints.begin();
-            iter != this->parentJoints.end();
+    for (auto iter = this->dataPtr->parentJoints.cbegin();
+            iter != this->dataPtr->parentJoints.cend();
             ++iter)
   {
     /// @todo: can we assume there are no repeats?
-    auto parentJoint_ = (*iter).lock();
+    auto parentJoint_ = (*iter);
     if (parentJoint_ && parentJoint_->GetName() == _jointName)
     {
       this->dataPtr->parentJoints.erase(iter);
@@ -943,12 +943,12 @@ void Link::RemoveParentJoint(const std::string &_jointName)
 //////////////////////////////////////////////////
 void Link::RemoveChildJoint(const std::string &_jointName)
 {
-    for (auto iter = this->childJoints.begin();
-            iter != this->childJoints.end();
+    for (auto iter = this->dataPtr->childJoints.begin();
+            iter != this->dataPtr->childJoints.end();
             ++iter)
   {
     /// @todo: can we assume there are no repeats?
-    auto childJoint_ = (*iter).lock();
+    auto childJoint_ = (*iter);
     if (childJoint_ && childJoint_->GetName() == _jointName)
     {
       this->dataPtr->childJoints.erase(iter);

@@ -109,7 +109,7 @@ void JointVisual::Load(ConstJointPtr &_msg)
   }
 
   // Scale according to the link it is attached to
-  double linkSize = std::max(0.1, dPtr->parent.lock()->GetBoundingBox().GetSize().GetLength());
+  double linkSize = std::max(0.1, dPtr->parent.lock()->BoundingBox().Size().Length());
   dPtr->scaleToLink = ignition::math::Vector3d(linkSize * 0.7,
       linkSize * 0.7, linkSize * 0.7);
   this->SetScale(dPtr->scaleToLink);

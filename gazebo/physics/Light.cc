@@ -117,7 +117,7 @@ void Light::OnPoseChange()
 /////////////////////////////////////////////////
 const ignition::math::Pose3d &Light::WorldPose() const
 {
-  EntityPtr parentEnt = boost::dynamic_pointer_cast<Entity>(this->parent);
+  EntityPtr parentEnt = boost::dynamic_pointer_cast<Entity>(this->parent.lock());
   if (this->dataPtr->worldPoseDirty && parentEnt)
   {
     this->worldPose = this->InitialRelativePose() +

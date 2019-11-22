@@ -31,6 +31,7 @@
 #include <memory>
 
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 
 #include <sdf/sdf.hh>
 

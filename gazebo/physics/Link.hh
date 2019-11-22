@@ -490,10 +490,10 @@ namespace gazebo
       public: void SetPublishData(bool _enable);
 
       /// \brief Get the parent joints.
-      public: std::vector<JointWeakPtr> GetParentJoints() const;
+      public: std::vector<JointPtr> GetParentJoints() const;
 
       /// \brief Get the child joints.
-      public: std::vector<JointWeakPtr> GetChildJoints() const;
+      public: std::vector<JointPtr> GetChildJoints() const;
 
       /// \brief Remove a collision from the link.
       /// \param[int] _name Name of the collision to remove.
